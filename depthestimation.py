@@ -29,20 +29,23 @@ def get_MiDas_monodepth(filepath, model="small"):
 
     input_batch = transform(img_midas).to(device)
 
-    time_start = time.time()
+    i = 0
 
-    with torch.no_grad():
-        prediction = midas(input_batch)
+    while(i<100):
+        time_start = time.time()
+        i+=1
+        with torch.no_grad():
+            prediction = midas(input_batch)
 
-        prediction = torch.nn.functional.interpolate(
-            prediction.unsqueeze(1),
-            size=img_midas.shape[:2],
-            mode="bicubic",
-            align_corners=False,
-        ).squeeze()
+            prediction = torch.nn.functional.interpolate(
+                prediction.unsqueeze(1),
+                size=img_midas.shape[:2],
+                mode="bicubic",
+                align_corners=False,
+            ).squeeze()
 
-    time_elapsed = time.time() - time_start
-    print(f"Depth estimation time: {time_elapsed*1000:.2f} ms")
+        time_elapsed = time.time() - time_start
+        print(f"Depth estimation time: {time_elapsed*1000:.2f} ms")
 
     output = prediction.cpu().numpy()
 
