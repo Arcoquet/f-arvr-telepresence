@@ -1,3 +1,5 @@
+import time
+
 import torch
 import cv2
 # import matplotlib.pyplot as plt
@@ -27,6 +29,8 @@ def get_MiDas_monodepth(filepath, model="small"):
 
     input_batch = transform(img_midas).to(device)
 
+    time_start = time.time()
+
     with torch.no_grad():
         prediction = midas(input_batch)
 
@@ -36,6 +40,9 @@ def get_MiDas_monodepth(filepath, model="small"):
             mode="bicubic",
             align_corners=False,
         ).squeeze()
+
+    time_elapsed = time.time() - time_start
+    print(f"Depth estimation time: {time_elapsed*1000:.2f} ms")
 
     output = prediction.cpu().numpy()
 
