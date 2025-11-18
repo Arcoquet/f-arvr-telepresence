@@ -4,8 +4,8 @@ import torch
 import cv2
 # import matplotlib.pyplot as plt
 
-def get_MiDas_monodepth(filepath, model="small"):
-    if model == "small":
+def get_MiDas_monodepth(filepath, model_mod = True):
+    if model_mod == "small":
         model_type = "MiDaS_small"  # MiDaS v2.1 - Small   (lowest accuracy, highest inference speed)
     else :
         model_type = "DPT_Hybrid"  # MiDaS v3 - Hybrid    (medium accuracy, medium inference speed)
