@@ -8,11 +8,11 @@ import cv2
 # - https://www.meta.com/emerging-tech/codec-avatars/sapiens/
 # - https://mediapipe-studio.webapps.google.com/demo/face_landmarker + skeleton
 
-def get_MiDas_monodepth(filepath, model_mod = True):
-    if model_mod == "small":
+def get_MiDas_monodepth(image, model_mod = True):
+    if model_mod == True:
         model_type = "MiDaS_small"  # MiDaS v2.1 - Small   (lowest accuracy, highest inference speed)
     else :
-        model_type = "DPT_Hybrid"  # MiDaS v3 - Hybrid    (medium accuracy, medium inference speed)
+        model_type = "DPT_Hybrid"  # MiDaS v3 - Hybrid    (medium accuracy, medium inference speed) Trop lent pour du temps
 
 
     midas = torch.hub.load("intel-isl/MiDaS", model_type)
@@ -28,40 +28,59 @@ def get_MiDas_monodepth(filepath, model_mod = True):
     else:
         transform = midas_transforms.small_transform
 
-    img_midas = cv2.imread(filepath)
-    img_midas = cv2.cvtColor(img_midas, cv2.COLOR_BGR2RGB)
+    input_batch = transform(image).to(device)
 
-    input_batch = transform(img_midas).to(device)
+    # i = 0 # Boucle controle de temps
+    # while(i<10):
+    #     time_start = time.time()
+    #     i+=1
+    #     with torch.no_grad():
+    #         prediction = midas(input_batch)
 
-    i = 0
+    #         prediction = torch.nn.functional.interpolate(
+    #             prediction.unsqueeze(1),
+    #             size=img_midas.shape[:2],
+    #             mode="bicubic",
+    #             align_corners=False,
+    #         ).squeeze()
 
-    while(i<100):
-        time_start = time.time()
-        i+=1
-        with torch.no_grad():
-            prediction = midas(input_batch)
-
-            prediction = torch.nn.functional.interpolate(
-                prediction.unsqueeze(1),
-                size=img_midas.shape[:2],
-                mode="bicubic",
-                align_corners=False,
+    #     time_elapsed = time.time() - time_start
+    #     print(f"Depth estimation time: {time_elapsed*1000:.2f} ms")
+        
+    with torch.no_grad():
+        prediction = midas(input_batch)
+        prediction = torch.nn.functional.interpolate(
+            prediction.unsqueeze(1),
+            size=image.shape[:2],
+            mode="bicubic",
+            align_corners=False,
             ).squeeze()
-
-        time_elapsed = time.time() - time_start
-        print(f"Depth estimation time: {time_elapsed*1000:.2f} ms")
 
     output = prediction.cpu().numpy()
 
     # TODO use CV_16U instead
     output = cv2.normalize(output, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
-
-    cv2.imshow("depth colored", output)
-    cv2.waitKey(0)
-    # cv2.destroyAllWindows()
-
-    # plt.imshow(output)
-    # plt.show()
+    return output
 
 
-get_MiDas_monodepth("right.png", False)
+
+cap = cv2.VideoCapture(0)
+
+if not cap.isOpened():
+    print("Error: Could not open camera.")
+    exit()
+
+print("q = exit")
+
+while(True):
+    ret, frame = cap.read()
+    if not ret:
+        print("Error: Failed to receive frame.")
+        break
+    d_frame = get_MiDas_monodepth(frame)
+    cv2.imshow('Live Depth Camera Feed', d_frame)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break
+
+cap.release()
+cv2.destroyAllWindows()
