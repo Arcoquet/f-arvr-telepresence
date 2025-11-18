@@ -7,8 +7,9 @@ from pylibfreenect2 import FrameType, Registration, Frame
 from pylibfreenect2 import createConsoleLogger, setGlobalLogger
 from pylibfreenect2 import LoggerLevel
 import time
-import PySimpleGUI as sg
+import FreeSimpleGUI as sg
 from datetime import datetime
+from pathlib import Path
 
 class Fps:
     num = 0
@@ -56,8 +57,8 @@ class Gui:
 
         return key
 
-    def updateNumFrame(self, numframestr):
-        self.window['numframestr'].update(numframestr)
+    def updateNumFrame(self, numframe: int):
+        self.window['numframestr'].update(f"{numframe:06}")
 
     def isRecording(self):
         return self.window['record'].Get()
@@ -88,8 +89,7 @@ if num_devices == 0:
 serial = fn.getDeviceSerialNumber(0)
 device = fn.openDevice(serial, pipeline=pipeline)
 
-listener = SyncMultiFrameListener(
-    FrameType.Color | FrameType.Ir | FrameType.Depth)
+listener = SyncMultiFrameListener(FrameType.Color | FrameType.Ir | FrameType.Depth)
 
 # Register listeners
 device.setColorFrameListener(listener)
@@ -98,8 +98,7 @@ device.setIrAndDepthFrameListener(listener)
 device.start()
 
 # NOTE: must be called after device.start()
-registration = Registration(device.getIrCameraParams(),
-                            device.getColorCameraParams())
+registration = Registration(device.getIrCameraParams(), device.getColorCameraParams())
 
 cam = device.getIrCameraParams()
 
@@ -112,16 +111,11 @@ need_bigdepth = True
 need_color_depth_map = False
 
 bigdepth = Frame(1920, 1082, 4) if need_bigdepth else None
-color_depth_map = np.zeros((424, 512),  np.int32).ravel() \
-    if need_color_depth_map else None
+color_depth_map = np.zeros((424, 512),  np.int32).ravel() if need_color_depth_map else None
 
 numframe = 0
 
-dir = 'tmp_frames/' +datetime.now().strftime('%Y%m%d-%H%M')+"_kinect2-py/frames/"
-print(dir)
-dir = dir if dir.startswith('/') else os.getcwd() #force having absolute for print
-
-# out = cv2.VideoWriter("record/video.avi",cv2.VideoWriter_fourcc(*'MJPG'), 30, (1920,1080))
+dir = Path('tmp_frames') / datetime.now().strftime('%Y%m%d-%H%M')
 
 gui = Gui(dir)
 
@@ -132,9 +126,7 @@ while True:
     ir = frames["ir"]
     depth = frames["depth"]
 
-    registration.apply(color, depth, undistorted, registered,
-                       bigdepth=bigdepth,
-                       color_depth_map=color_depth_map)
+    registration.apply(color, depth, undistorted, registered, bigdepth=bigdepth, color_depth_map=color_depth_map)
 
     # NOTE for visualization:
     # cv2.imshow without OpenGL backend seems to be quite slow to draw all
@@ -148,9 +140,8 @@ while True:
 
     # out.write(color.asarray())
 
-    # if need_bigdepth:
-    #     cv2.imshow("bigdepth", cv2.resize(bigdepth.asarray(np.float32),
-    #                                       (int(1920 / 3), int(1082 / 3))))
+    if need_bigdepth:
+        cv2.imshow("bigdepth", cv2.resize(bigdepth.asarray(np.float32), (int(1920 / 3), int(1082 / 3))))
     if need_color_depth_map:
         cv2.imshow("color_depth_map", color_depth_map.reshape(424, 512))
 
@@ -159,24 +150,23 @@ while True:
     if key == ord('q'):
         break
     if key == ord('s') or gui.isRecording():
-        print("Save in %s" % dir)
+        print(f"Save in {dir}")
         os.makedirs(dir, exist_ok=True)
-        numframestr = format(numframe, '06')
-        cv2.imwrite(dir + "/" + numframestr + "_rgb-mirror.jpg", color.asarray())
+        cv2.imwrite(dir / f"{numframe:06}_rgb-mirror.jpg", color.asarray())
         depthFloat = depth.asarray()
         depthInt16 = depthFloat.astype(np.uint16)
-        cv2.imwrite(dir + "/" + numframestr + "_depth-mirror.png", depthInt16) #CV_16UC1
-        cv2.imwrite(dir + "/" + numframestr + "_registered-mirror.jpg", registered.asarray(np.uint8))  # CV_16UC1
+        cv2.imwrite(dir / f"{numframe:06}_depth-mirror.png", depthInt16) #CV_16UC1
+        cv2.imwrite(dir / f"{numframe:06}_registered-mirror.jpg", registered.asarray(np.uint8))  # CV_16UC1
         bigdepthFloat = bigdepth.asarray(np.float32)
         bigdepthInt16 = bigdepthFloat.astype(np.uint16)
-        cv2.imwrite(dir + "/" + numframestr + "_bigdepth-mirror.png", bigdepthInt16)
+        cv2.imwrite(dir / f"{numframe:06}_bigdepth-mirror.png", bigdepthInt16)
         # TODO _bigdepth.png (cropped to 1080x1920) and _rgb.jpg
         # convert 58077_rgb-mirror.jpg -flop 58077_rgb.jpg
         # convert 58077_bigdepth-mirror.png -flop -crop 1920x1080+0+0 58077_bigdepth.png
         # mogrify -flop *.jpg
         # mogrify -crop 1920x1080+0+0 *.png
         # mkdir -p 320x180 && mogrify -path 320x180 -resize 320x180 *.png
-        gui.updateNumFrame(numframestr)
+        gui.updateNumFrame(numframe)
 
     listener.release(frames)
     numframe+=1
