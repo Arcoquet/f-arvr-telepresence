@@ -39,6 +39,7 @@ def get_MiDas_monodepth(filepath, model="small"):
 
     output = prediction.cpu().numpy()
 
+    # TODO use CV_16U instead
     output = cv2.normalize(output, None, 0, 255, cv2.NORM_MINMAX, dtype=cv2.CV_8U)
 
     cv2.imshow("depth colored", output)
