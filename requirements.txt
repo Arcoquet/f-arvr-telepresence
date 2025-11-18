@@ -1,1 +1,8 @@
 #timm
+
+
+numpy
+opencv-python
+#pylibfreenect2 bc of cython error I used instead : pip install git+https://github.com/r9y9/pylibfreenect2
+#Cython
+PySimpleGUI
