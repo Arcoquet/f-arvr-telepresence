@@ -4,6 +4,10 @@ import torch
 import cv2
 # import matplotlib.pyplot as plt
 
+# Could test thoses alternatives (specialized in human):
+# - https://www.meta.com/emerging-tech/codec-avatars/sapiens/
+# - https://mediapipe-studio.webapps.google.com/demo/face_landmarker + skeleton
+
 def get_MiDas_monodepth(filepath, model_mod = True):
     if model_mod == "small":
         model_type = "MiDaS_small"  # MiDaS v2.1 - Small   (lowest accuracy, highest inference speed)
@@ -60,4 +64,4 @@ def get_MiDas_monodepth(filepath, model_mod = True):
     # plt.show()
 
 
-get_MiDas_monodepth("right.png")
+get_MiDas_monodepth("right.png", False)
