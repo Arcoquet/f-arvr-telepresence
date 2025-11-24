@@ -1,7 +1,5 @@
-// what is a STUN server???
-
 const config = {
-    // iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+    // iceServers: [{ urls: "stun:stun.l.google.com:19302" }], STUN server needed?
 };
 
 const pc = new RTCPeerConnection(config);
@@ -13,20 +11,6 @@ async function startStream() {
 
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
-
-    // await new Promise((resolve) => {
-    //     if (pc.iceGatheringState === "complete") {
-    //         resolve();
-    //     } else {
-    //         const checkState = () => {
-    //             if (pc.iceGatheringState === "complete") {
-    //                 pc.removeEventListener("icegatheringstatechange", checkState);
-    //                 resolve();
-    //             }
-    //         };
-    //         pc.addEventListener("icegatheringstatechange", checkState);
-    //     }
-    // });
 
     // Send the offer to the Python server
     const response = await fetch("http://localhost:8080/offer", {
@@ -45,10 +29,15 @@ pc.ontrack = (event) => {
     console.log("Track received:", event.streams);
     const videoElement = document.getElementById("video");
     videoElement.srcObject = event.streams[0];
+    videoElement.muted = true; //Browsers block autoplay with sound.
+    videoElement.play().catch(e => console.error("Autoplay failed:", e));
 };
 
-document.getElementById("startBtn").addEventListener("click", () => {
-    startStream().catch(console.error);
-    document.getElementById("startBtn").disabled = true;
-    document.getElementById("startBtn").innerText = "Connecting...";
-});
+// document.getElementById("startBtn").addEventListener("click", () => {
+//     startStream().catch(console.error);
+//     document.getElementById("startBtn").disabled = true;
+//     document.getElementById("startBtn").innerText = "Connecting...";
+// });
+
+// Automatically start when the page loads
+startStream();

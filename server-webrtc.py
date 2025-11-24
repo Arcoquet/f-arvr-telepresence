@@ -66,7 +66,7 @@ async def on_shutdown(app):
 if __name__ == "__main__":
     app = web.Application()
 
-    # Configure CORS so the Vite app (different port) can talk to this server
+    # CORS needed by the js client
     cors = aiohttp_cors.setup(app, defaults={
         "*": aiohttp_cors.ResourceOptions(
             allow_credentials=True,
