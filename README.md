@@ -16,3 +16,11 @@ pip install -r requirements.txt
 ```
 
 
+
+
+## Demo JS client
+
+```shell
+cd webdemo
+npm run dev
+```
