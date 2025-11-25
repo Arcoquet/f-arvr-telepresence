@@ -17,9 +17,15 @@ const vert = `
     const float YtoZ = 0.83359; // tan( 0.7898090 / 2.0 ) * 2.0;
 
     void main() {
-        vUv = vec2( position.x / width, position.y / height );
-        vec4 color = texture2D( map, vUv );
+        vec2 depthvUv = vec2( position.x / width, position.y / height * 0.5 ); //depthvUv is lower video part
+        vUv = depthvUv + vec2(0.0, 0.5); //colorvUv is upper video part
+        vec4 color = texture2D( map, depthvUv );
+        
+        //depth is grayscale
         float depth = ( color.r + color.g + color.b ) / 3.0;
+        
+        //depth is hue
+        // TODO
 
         float z = ( 1.0 - depth ) * (farClipping - nearClipping) + nearClipping;
 
@@ -36,7 +42,6 @@ const vert = `
     }
 `
 
-
 // language=GLSL
 const frag = `
     uniform sampler2D map;
@@ -45,11 +50,9 @@ const frag = `
         vec4 color = texture2D( map, vUv );
         gl_FragColor = vec4( color.r, color.g, color.b, 0.2 );
     }
-    
-    
 `
 
-export class RGBDObject {
+export class RGBDObject { //TODO export THREE.Group
     width = 640 // matching the number of depth pixel we want to have in our render
     height = 480;
     nearClipping = 850
