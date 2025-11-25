@@ -9,7 +9,6 @@ const w = 500, h = 500
 
 
 let scene, camera;
-let geometry, mesh, material;
 let mouse, center;
 
 init();
@@ -22,7 +21,7 @@ function init() {
     const info = document.createElement( 'div' );
     document.body.appendChild( info );
 
-    camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 10000 );
+    camera = new THREE.PerspectiveCamera( 50, w / h, 1, 10000 );
     camera.position.set( 0, 0, 500 );
 
     scene = new THREE.Scene();
@@ -31,17 +30,19 @@ function init() {
 
     const video = document.getElementById( 'video' );
 
+    const rgbdObject = new RGBDObject(video)
+    scene.add( rgbdObject );
 
-
-    const rgbdo = new RGBDObject()
-    const mesh = rgbdo.create3DObject(video)
-    scene.add( mesh );
-
-    // const gui = new GUI();
+    const gui = new GUI();
+    const maxRot = Math.PI;
     // gui.add( material.uniforms.nearClipping, 'value', 1, 10000, 1.0 ).name( 'nearClipping' );
     // gui.add( material.uniforms.farClipping, 'value', 1, 10000, 1.0 ).name( 'farClipping' );
     // gui.add( material.uniforms.pointSize, 'value', 1, 10, 1.0 ).name( 'pointSize' );
     // gui.add( material.uniforms.zOffset, 'value', 0, 4000, 1.0 ).name( 'zOffset' );
+    gui.add( rgbdObject.rotation, 'x', -maxRot, maxRot, 0.01 ).name( 'Rotate X' );
+    gui.add( rgbdObject.rotation, 'y', -maxRot, maxRot, 0.01 ).name( 'Rotate Y' );
+    gui.add( rgbdObject.rotation, 'x', -maxRot, maxRot, 0.01 ).name( 'Rotate Z' );
+
     video.play();
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize(w, h);
@@ -63,9 +64,9 @@ function onDocumentMouseMove( event ) {
 }
 
 function animate() {
-    camera.position.x += ( mouse.x - camera.position.x ) * 0.05;
-    camera.position.y += ( - mouse.y - camera.position.y ) * 0.05;
-    camera.lookAt( center );
+    // camera.position.x += ( mouse.x - camera.position.x ) * 0.05;
+    // camera.position.y += ( - mouse.y - camera.position.y ) * 0.05;
+    // camera.lookAt( center );
     renderer.render( scene, camera );
 }
 

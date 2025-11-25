@@ -24,10 +24,12 @@ const vert = `
         //depth is grayscale
         float depth = ( color.r + color.g + color.b ) / 3.0;
         
+        if(depth > 0.99) return;
+        
         //depth is hue
         // TODO
 
-        float z = ( 1.0 - depth ) * (farClipping - nearClipping) + nearClipping;
+        float z = depth * (farClipping - nearClipping) + nearClipping;
 
         vec4 pos = vec4(
             ( position.x / width - 0.5 ) * z * XtoZ,
@@ -52,12 +54,13 @@ const frag = `
     }
 `
 
-export class RGBDObject { //TODO export THREE.Group
+export class RGBDObject extends THREE.Group {
     width = 640 // matching the number of depth pixel we want to have in our render
     height = 480;
     nearClipping = 850
     farClipping = 4000
-    create3DObject(video) {
+    constructor(video) {
+        super()
         const texture = new THREE.VideoTexture( video );
         texture.minFilter = THREE.NearestFilter;
         texture.generateMipmaps = false;
