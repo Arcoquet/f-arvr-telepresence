@@ -7,13 +7,15 @@ import numpy as np
 # - https://mediapipe-studio.webapps.google.com/demo/face_landmarker + skeleton
 
 
-def load_midas(model_mod=True):
+def load_midas(model_mod=0):
     print("Loading MiDaS model...")
 
-    if model_mod:
+    if model_mod == 0:
         model_type = "MiDaS_small"   # MiDaS v2.1 - Small   (lowest accuracy, highest inference speed)
+    elif model_mod == 1:
+        model_type = "DPT_Hybrid"    # MiDaS v3 - Hybrid    (medium accuracy, medium inference speed) Trop lent pour du temps réel sur cpu
     else:
-        model_type = "DPT_Hybrid"    # MiDaS v3 - Hybrid    (medium accuracy, medium inference speed) Trop lent pour du temps
+        model_mod = "DPT_Large"       # MiDaS V3 - Large (better accuracy, low inference seed) A tester en gpu uniquement
 
     midas = torch.hub.load("intel-isl/MiDaS", model_type)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
