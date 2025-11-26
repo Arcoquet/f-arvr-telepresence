@@ -73,7 +73,7 @@ const frag = `
     }
 `
 
-export class RGBDObject extends THREE.Group {
+export class RGBDObject3D extends THREE.Object3D {
     //size of the grid (number of vertices eq width * height) - could be different from color/depth jpg/video/stream resolution
     width = 1920/2 // matching the number of depth pixel we want to have in our render
     height = 1080/2;
