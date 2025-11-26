@@ -22,5 +22,6 @@ pip install -r requirements.txt
 
 ```shell
 cd webdemo
+npm install
 npm run dev
 ```

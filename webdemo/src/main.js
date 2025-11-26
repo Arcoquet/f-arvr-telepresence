@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { OrbitControls } from "three/addons";
 
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 import { RGBDObject } from "./RGBDObject.js";
@@ -10,17 +11,11 @@ const w = 500, h = 500
 
 let scene, camera;
 let mouse, center;
+let controls;
 
 init();
 
 function init() {
-
-    const container = document.createElement( 'div' );
-    document.body.appendChild( container );
-
-    const info = document.createElement( 'div' );
-    document.body.appendChild( info );
-
     camera = new THREE.PerspectiveCamera( 50, w / h, 1, 10000 );
     camera.position.set( 0, 0, 500 );
 
@@ -28,10 +23,13 @@ function init() {
     center = new THREE.Vector3();
     center.z = - 1000;
 
-    const video = document.getElementById( 'video' );
+    const video = document.getElementById( 'video' )
+
+    const axesHelper = new THREE.AxesHelper( 5 );
+    scene.add( axesHelper );
 
     const rgbdObject = new RGBDObject(video)
-    scene.add( rgbdObject );
+    scene.add(rgbdObject);
 
     const gui = new GUI();
     const maxRot = Math.PI;
@@ -50,6 +48,8 @@ function init() {
     mouse = new THREE.Vector3( 0, 0, 1 );
     document.addEventListener( 'mousemove', onDocumentMouseMove );
     window.addEventListener( 'resize', onWindowResize );
+
+    controls = new OrbitControls( camera, renderer.domElement );
 }
 
 function onWindowResize() {
@@ -67,6 +67,7 @@ function animate() {
     // camera.position.x += ( mouse.x - camera.position.x ) * 0.05;
     // camera.position.y += ( - mouse.y - camera.position.y ) * 0.05;
     // camera.lookAt( center );
+    controls.update();
     renderer.render( scene, camera );
 }
 
