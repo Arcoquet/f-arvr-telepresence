@@ -15,14 +15,14 @@ const vert = `
 
     const float PI = 3.141592653589793;
     const float FOV_HORIZONTAL_DEG = 84.1;//kinect v2 FOV
-    const float FOV_VERTICAL_DEG = 53.8;//kinect v2 FOV
+//    const float FOV_VERTICAL_DEG = 53.8;//kinect v2 FOV
     
-    const float FOV_HORIZONTAL_RAD = FOV_HORIZONTAL_DEG * PI / 180.0;
-    const float FOV_VERTICAL_RAD = FOV_VERTICAL_DEG * PI / 180.0;
+//    const float FOV_HORIZONTAL_RAD = FOV_HORIZONTAL_DEG * PI / 180.0;
+//    const float FOV_VERTICAL_RAD = FOV_VERTICAL_DEG * PI / 180.0;
     
-    const float XtoZ = tan(FOV_HORIZONTAL_RAD / 2.0) * 2.0;
-    const float YtoZ = tan(FOV_VERTICAL_RAD / 2.0) * 2.0; //float YtoZ = XtoZ * (height / width);
-    const vec2 XYtoZ = vec2(XtoZ, YtoZ); //coud use ratio instead below 
+//    const float XtoZ = tan(FOV_HORIZONTAL_RAD / 2.0) * 2.0;
+//    const float YtoZ = tan(FOV_VERTICAL_RAD / 2.0) * 2.0; //float YtoZ = XtoZ * (height / width);
+//    const vec2 XYtoZ = vec2(XtoZ, YtoZ); //coud use ratio instead below 
 
     const bool IS_DEPTH_HUE = true;
 //    const bool IS_DEPTH_HUE = false;
