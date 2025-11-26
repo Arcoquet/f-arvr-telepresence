@@ -1,4 +1,5 @@
-import * as THREE from "three";
+import * as THREE from "three"
+
 
 // language=GLSL
 const vert = `
@@ -23,6 +24,10 @@ const vert = `
     const float YtoZ = tan(FOV_VERTICAL_RAD / 2.0) * 2.0; //float YtoZ = XtoZ * (height / width);
     const vec2 XYtoZ = vec2(XtoZ, YtoZ); //coud use ratio instead below 
 
+    const bool IS_DEPTH_HUE = true;
+//    const bool IS_DEPTH_HUE = false;
+    const float INVALID_DEPTH = -2.0;
+
     vec3 rgb2hsv(vec3 c) { // return [0-1, 0-1, 0-1]
         const float _Epsilon = 1.0e-10;
         vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
@@ -34,9 +39,17 @@ const vert = `
 
     float getNormalizedDepth(vec2 depthvUv) {
         vec4 color = texture2D(map, depthvUv);
-        //depth is grayscale
-        float depth = (color.r + color.g + color.b) / 3.0;
-        return depth;//[0-1]
+        
+        float depth;
+        if(IS_DEPTH_HUE) { //depth is encoded as grayscale
+            vec3 hsv = rgb2hsv(color.rgb);
+            if(hsv.z < 0.8) return INVALID_DEPTH; //to "remove" the black "no value" background - change to other color?
+            depth = hsv.x;
+        } else { //depth is encoded as grayscale
+            depth = (color.r + color.g + color.b) / 3.0;
+            if(depth >= 0.996) return INVALID_DEPTH; //0.996 == 255.0/256.0
+        }
+        return depth;//[0-1] + INVALID_DEPTH value
     }
 
     void main() {
@@ -44,9 +57,9 @@ const vert = `
         vUv = depthvUv + vec2(0.0, 0.5);//colorvUv is upper video part
 
         float depth = getNormalizedDepth(depthvUv);
-        if (depth > 0.99) return;
+        if (depth == INVALID_DEPTH) return; //magic value set in getNormalizedDepth to remove/skip that point (invalid depth)
 
-        float z = depth * (farClipping - nearClipping) + nearClipping; // in mm
+        float z = (depth * (farClipping - nearClipping) + nearClipping) / 1000.0; // z in meters
 
         float fovRad = FOV_HORIZONTAL_DEG * (PI / 180.0);
         float f = wh.x / (2.0 * tan(fovRad / 2.0));
@@ -54,9 +67,7 @@ const vert = `
         vec4 pos = vec4(
         (position.xy - wh * 0.5) * z / f,
 //        ( position.xy / wh - 0.5 ) * z * XYtoZ, //is that similar than above formula?
-        - z,
-        1.0
-        );
+        -z, 1.0);
 
         gl_PointSize = pointSize;
         gl_Position = projectionMatrix * modelViewMatrix * pos;
@@ -76,26 +87,32 @@ const frag = `
 export class RGBDObject3D extends THREE.Object3D {
     //size of the grid (number of vertices eq width * height) - could be different from color/depth jpg/video/stream resolution
     width = 1920/2 // matching the number of depth pixel we want to have in our render
-    height = 1080/2;
+    height = 1080/2
     nearClipping = 500
     farClipping = 1500
 
     constructor(video) {
         super()
-        const texture = new THREE.VideoTexture(video);
-        texture.minFilter = THREE.NearestFilter;
-        texture.generateMipmaps = false;
-        return new THREE.Points(this.createGeo(), this.createMat(texture));
+        const texture = new THREE.VideoTexture(video)
+        texture.minFilter = THREE.NearestFilter
+        texture.generateMipmaps = false
+        const points = new THREE.Points(this.createGeo(), this.createMat(texture))
+        points.frustumCulled = false
+        this.add(points)
+
+        const rgbdCameraHelper = new THREE.PerspectiveCamera(75, this.width / this.height) //dumb fov
+        const cameraHelper = new THREE.CameraHelper(rgbdCameraHelper)
+        this.add(cameraHelper)
     }
 
     createGeo() {
-        let geometry = new THREE.BufferGeometry();
-        const vertices = new Float32Array(this.width * this.height * 3);
+        let geometry = new THREE.BufferGeometry()
+        const vertices = new Float32Array(this.width * this.height * 3)
         for (let i = 0, j = 0, l = vertices.length; i < l; i += 3, j++) {
-            vertices[i] = j % this.width;
-            vertices[i + 1] = Math.floor(j / this.width);
+            vertices[i] = j % this.width
+            vertices[i + 1] = Math.floor(j / this.width)
         }
-        geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+        geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3))
         return geometry
     }
 
@@ -110,6 +127,6 @@ export class RGBDObject3D extends THREE.Object3D {
             },
             vertexShader: vert,
             fragmentShader: frag
-        });
+        })
     }
 }
