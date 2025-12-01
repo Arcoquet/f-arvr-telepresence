@@ -1,8 +1,9 @@
 import cv2
+import traceback
 from aiortc import VideoStreamTrack
 from av import VideoFrame
 
-from utils import Fps, combinate_rgbd, Timer, downscale
+from utils import Fps, combinate_rgbd, Timer, downscale, print_exceptions
 
 
 class DumbStaticRGBD(VideoStreamTrack):
@@ -18,6 +19,7 @@ class DumbStaticRGBD(VideoStreamTrack):
         self.show = show
         self.is_hue = is_hue
 
+    @print_exceptions
     async def recv(self):
         pts, time_base = await self.next_timestamp()
         color_bgr = cv2.imread(self.color_path)

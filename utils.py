@@ -5,6 +5,9 @@ import numpy as np
 
 from hue import hue_torch
 
+import traceback
+import functools
+
 
 def combinate_rgbd(color, depth_16b, near, far, is_hue = True, device='cuda'):
     assert color.shape[:2] == depth_16b.shape[:2], "Color and Depth must have same w x h"
@@ -60,3 +63,13 @@ class Timer:
 def downscale(img, scale=4):
     h, w = img.shape[:2]
     return cv2.resize(img, (int(w/scale), int(h/scale)))
+
+def print_exceptions(func):
+    @functools.wraps(func)
+    async def wrapper(*args, **kwargs):
+        try:
+            return await func(*args, **kwargs)
+        except Exception:
+            traceback.print_exc()
+            raise
+    return wrapper
