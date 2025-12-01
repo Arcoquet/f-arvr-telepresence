@@ -11,6 +11,8 @@ make
 ./bin/Protonect #must display a RGB-D feed
 sudo make install
 
+python server.py
+
 pip install -r requirements.txt
 #mamba env create -n arvr --file environment.yml
 ```

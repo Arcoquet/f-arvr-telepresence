@@ -23,16 +23,17 @@
 
 <canvas id="threejs-container"></canvas>
 
-<!--<video id="video" autoplay playsinline controls></video>-->
-
-<video id="video" loop muted crossOrigin="anonymous" playsinline style="display:none">
+<br />
+Stream<button id="startBtn">Start Stream</button>
+<br />
+<video id="video" loop muted autoplay crossOrigin="anonymous" playsinline>
 <!--    <source src="kinect.webm">-->
 <!--    <source src="rgbd_combined.webm" />&lt;!&ndash; depth is grayscale &ndash;&gt;-->
     <source src="rgbdhue_combined.webm" /><!-- depth is hue -->
 </video>
 
 <br/>
-<!--<button id="startBtn">Start Stream</button>-->
+
 
 <script type="module" src="src/main.js"></script>
 </body>
