@@ -35,3 +35,24 @@ class Fps:
             self.num = 0
             self.time_s = time.time()
             return out
+
+class Timer:
+    def __init__(self, name=None):
+        self.name = name
+
+    def __enter__(self):
+        self.start_time = time.time()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.end_time = time.time()
+        elapsed_ms = self.end_time - self.start_time
+        if elapsed_ms > 1000.0:
+            message = f"{elapsed_ms:.3f}s"
+        else:
+            message = f"{(elapsed_ms * 1000.0):.0f}ms"
+        if self.name:
+            print(f"[{self.name}] {message}")
+        else:
+            print(message)
+        return False

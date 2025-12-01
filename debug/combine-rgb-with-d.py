@@ -3,7 +3,8 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from hue import hue_torch, combinate_rgbd
+from hue import hue_torch
+from utils import combinate_rgbd, Timer
 
 dir_path = Path("frame-example")
 color_path = dir_path / "rgb.jpg"
@@ -32,13 +33,14 @@ cv2.imwrite(str(dir_path / "rgbd_combined.jpg"), rgbd_combined)
 i = 0
 rgbdhue_combined = None
 while(i<5): #loop to let torch to warm up
-    time_start = time.time()
-    depth_hue = hue_torch(depth_16b, near, far, device='cuda')
-    print(f"Hue: {time.time() - time_start:.3f}s")
+    with Timer(name='Hue only - cuda'):
+        depth_hue = hue_torch(depth_16b, near, far, device='cuda') #22ms
 
-    time_start = time.time()
-    rgbdhue_combined = combinate_rgbd(color, depth_16b, near, far, True, device='cuda')
-    print(f"Combined Hue: {time.time() - time_start:.3f}s")
+    with Timer(name='Hue only - cpu'):
+        depth_hue = hue_torch(depth_16b, near, far, device='cpu') #63ms
+
+    with Timer(name='combined hue'):
+        rgbdhue_combined = combinate_rgbd(color, depth_16b, near, far, True, device='cuda')
     i += 1
 
 cv2.imshow("rgbdhue_combined", downscale(rgbdhue_combined, 4))

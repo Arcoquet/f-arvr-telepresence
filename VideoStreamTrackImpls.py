@@ -2,7 +2,7 @@ import cv2
 from aiortc import VideoStreamTrack
 from av import VideoFrame
 
-from utils import Fps, combinate_rgbd
+from utils import Fps, combinate_rgbd, Timer
 
 
 class DumbStaticRGBD(VideoStreamTrack):
@@ -25,6 +25,7 @@ class DumbStaticRGBD(VideoStreamTrack):
 
         color_rgb = cv2.cvtColor(color_bgr, cv2.COLOR_BGR2RGB)
 
+        # with Timer(name='combinate_rgbd'):
         frame = combinate_rgbd(color_rgb, depth16, self.near, self.far, True, 'cuda')
         # frame = color_rgb #skip the depth
 
