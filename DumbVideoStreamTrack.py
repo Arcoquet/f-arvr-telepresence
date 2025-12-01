@@ -1,9 +1,9 @@
 import cv2
-import traceback
 from aiortc import VideoStreamTrack
 from av import VideoFrame
 
-from utils import Fps, combinate_rgbd, Timer, downscale, print_exceptions
+from utils import Fps, combinate_rgbd, downscale, print_exceptions
+
 
 
 class DumbStaticRGBD(VideoStreamTrack):
@@ -48,7 +48,7 @@ class DumbStaticRGBD(VideoStreamTrack):
         pass
 
 
-class WebcamStreamTrack(VideoStreamTrack):
+class DumbWebcamStreamTrack(VideoStreamTrack):
     def __init__(self):
         super().__init__()
         # Open the first available webcam

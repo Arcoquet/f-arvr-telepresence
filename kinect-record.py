@@ -11,6 +11,10 @@ import FreeSimpleGUI as sg
 from datetime import datetime
 from pathlib import Path
 
+from hue import hue_torch
+from utils import downscale
+
+
 class Fps:
     num = 0
     time_s = time.time()
@@ -134,16 +138,20 @@ while True:
     # visualization backend.
     cv2.imshow("ir", ir.asarray() / 65535.)
     cv2.imshow("depth", depth.asarray() / 4500.)
-    cv2.imshow("color", cv2.resize(color.asarray(),(int(1920/3), int(1080/3))))
+    cv2.imshow("color", downscale(color.asarray(),4))
     # cv2.imshow("undistorded", undistorted.asarray(np.uint8))
     cv2.imshow("color registered", registered.asarray(np.uint8))
-
     # out.write(color.asarray())
 
     if need_bigdepth:
-        cv2.imshow("bigdepth", cv2.resize(bigdepth.asarray(np.float32), (int(1920 / 3), int(1082 / 3))))
+        cv2.imshow("bigdepth", downscale(bigdepth.asarray(np.float32), 4))
     if need_color_depth_map:
         cv2.imshow("color_depth_map", color_depth_map.reshape(424, 512))
+
+    depth_hue = hue_torch(bigdepth.asarray(np.float32), 500, 1500)
+    cv2.imshow("hue depth", downscale(depth_hue, 4))
+
+    print(bigdepth.asarray(np.float32).shape)
 
     key = gui.waitKey()
 

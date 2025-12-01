@@ -8,6 +8,8 @@ from hue import hue_torch
 import traceback
 import functools
 
+import socket
+
 
 def combinate_rgbd(color, depth_16b, near, far, is_hue = True, device='cuda'):
     assert color.shape[:2] == depth_16b.shape[:2], "Color and Depth must have same w x h"
@@ -73,3 +75,15 @@ def print_exceptions(func):
             traceback.print_exc()
             raise
     return wrapper
+
+def get_local_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        # doesn't even have to be reachable
+        s.connect(('8.8.8.8', 1))
+        IP = s.getsockname()[0]
+    except Exception:
+        IP = '127.0.0.1'
+    finally:
+        s.close()
+    return IP

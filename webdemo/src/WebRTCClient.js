@@ -15,7 +15,7 @@ export class WebRTCClient {
         };
     }
 
-    async startStream() {
+    async startStream(host, isHttps = false) {
         console.log("Starting connection...")
 
         this.pc.addTransceiver("video", {direction: "recvonly"}) // watching only
@@ -24,7 +24,8 @@ export class WebRTCClient {
         await this.pc.setLocalDescription(offer)
 
         // Send the offer to the Python server
-        const response = await fetch("http://localhost:8080/offer", {
+        const protocol = isHttps ? 'https' : 'http'
+        const response = await fetch(`${protocol}://${host}:8080/offer`, {
             method: "POST",
             body: JSON.stringify({sdp: this.pc.localDescription.sdp, type: this.pc.localDescription.type,}),
             headers: {"Content-Type": "application/json",},

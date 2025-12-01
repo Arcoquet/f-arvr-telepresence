@@ -1,5 +1,6 @@
 import * as THREE from 'three'
-import { OrbitControls } from "three/addons"
+import { OrbitControls, XRButton } from "three/addons"
+import { VRButton } from 'three/addons/webxr/VRButton.js'
 
 export default class WebGlApp {
     constructor(canvas) {
@@ -19,6 +20,12 @@ export default class WebGlApp {
         // this.scene.add(axesHelper)
 
         this.controls = new OrbitControls(this.camera, this.renderer.domElement)
+
+        document.body.appendChild(XRButton.createButton(this.renderer, {
+            // requiredFeatures: ['hand-tracking']
+        }))
+        this.renderer.xr.enabled = true
+        this.renderer.xr.setReferenceSpaceType('local')
     }
 
     onWindowResize() {
