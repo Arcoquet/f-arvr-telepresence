@@ -56,3 +56,7 @@ class Timer:
         else:
             print(message)
         return False
+
+def downscale(img, scale=4):
+    h, w = img.shape[:2]
+    return cv2.resize(img, (int(w/scale), int(h/scale)))

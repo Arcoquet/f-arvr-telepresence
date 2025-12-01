@@ -4,15 +4,11 @@ import cv2
 import numpy as np
 
 from hue import hue_torch
-from utils import combinate_rgbd, Timer
+from utils import combinate_rgbd, Timer, downscale
 
 dir_path = Path("frame-example")
 color_path = dir_path / "rgb.jpg"
 depth_path = dir_path / "depth.png"
-
-def downscale(img, scale=4):
-    h, w = img.shape[:2]
-    return cv2.resize(img, (int(w/scale), int(h/scale)))
 
 
 color = cv2.imread(str(color_path)) # BGR
