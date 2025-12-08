@@ -13,8 +13,9 @@ from pylibfreenect2 import FrameType, Registration, Frame
 from pylibfreenect2 import createConsoleLogger, setGlobalLogger, LoggerLevel
 from pylibfreenect2 import OpenGLPacketPipeline, OpenCLPacketPipeline, CpuPacketPipeline
 
+
 class Kinect2StreamTrack(VideoStreamTrack):
-    def __init__(self, near, far, is_hue = True, show = True):
+    def __init__(self, near, far, is_hue=True, show=True):
         super().__init__()
         self.near = near
         self.far = far

@@ -8,7 +8,7 @@ if not cap.isOpened():
 
 print("q = exit")
 
-while(True):
+while (True):
     ret, frame = cap.read()
     if not ret:
         print("Error: Failed to receive frame.")

@@ -28,13 +28,15 @@ class Fps:
             self.time_s = time.time()
             return out
 
+
 class Gui:
     def __init__(self, dir):
 
         layout = [
             [sg.Text('Dir:'), sg.Text(dir)],
             [sg.Text('Fps:'), sg.Text(size=(8), key='fps')],
-            [sg.Button('Snapshot (s)'), sg.Checkbox("Record", key='record'),sg.Text('Last rec frame:'), sg.Text(size=(6), key='numframestr')],
+            [sg.Button('Snapshot (s)'), sg.Checkbox("Record", key='record'), sg.Text('Last rec frame:'),
+             sg.Text(size=(6), key='numframestr')],
             [sg.Button('Quit (q)')]
         ]
 
@@ -45,7 +47,7 @@ class Gui:
     def waitKey(self):
         event, values = self.window.read(timeout=0)
         key = cv2.waitKey(1)
-        if(key == -1):
+        if (key == -1):
             if event == 'Snapshot (s)':
                 key = ord('s')
             if event == 'Record (r)':
@@ -70,13 +72,16 @@ class Gui:
 
 try:
     from pylibfreenect2 import OpenGLPacketPipeline
+
     pipeline = OpenGLPacketPipeline()
 except:
     try:
         from pylibfreenect2 import OpenCLPacketPipeline
+
         pipeline = OpenCLPacketPipeline()
     except:
         from pylibfreenect2 import CpuPacketPipeline
+
         pipeline = CpuPacketPipeline()
 print("Packet pipeline:", type(pipeline).__name__)
 
@@ -115,7 +120,7 @@ need_bigdepth = True
 need_color_depth_map = False
 
 bigdepth = Frame(1920, 1082, 4) if need_bigdepth else None
-color_depth_map = np.zeros((424, 512),  np.int32).ravel() if need_color_depth_map else None
+color_depth_map = np.zeros((424, 512), np.int32).ravel() if need_color_depth_map else None
 
 numframe = 0
 
@@ -138,7 +143,7 @@ while True:
     # visualization backend.
     cv2.imshow("ir", ir.asarray() / 65535.)
     cv2.imshow("depth", depth.asarray() / 4500.)
-    cv2.imshow("color", downscale(color.asarray(),4))
+    cv2.imshow("color", downscale(color.asarray(), 4))
     # cv2.imshow("undistorded", undistorted.asarray(np.uint8))
     cv2.imshow("color registered", registered.asarray(np.uint8))
     # out.write(color.asarray())
@@ -163,7 +168,7 @@ while True:
         cv2.imwrite(dir / f"{numframe:06}_rgb-mirror.jpg", color.asarray())
         depthFloat = depth.asarray()
         depthInt16 = depthFloat.astype(np.uint16)
-        cv2.imwrite(dir / f"{numframe:06}_depth-mirror.png", depthInt16) #CV_16UC1
+        cv2.imwrite(dir / f"{numframe:06}_depth-mirror.png", depthInt16)  # CV_16UC1
         cv2.imwrite(dir / f"{numframe:06}_registered-mirror.jpg", registered.asarray(np.uint8))  # CV_16UC1
         bigdepthFloat = bigdepth.asarray(np.float32)
         bigdepthInt16 = bigdepthFloat.astype(np.uint16)
@@ -177,7 +182,7 @@ while True:
         gui.updateNumFrame(numframe)
 
     listener.release(frames)
-    numframe+=1
+    numframe += 1
 
 # out.release()
 device.stop()
@@ -186,4 +191,3 @@ device.close()
 sys.exit(0)
 
 # window.close()
-

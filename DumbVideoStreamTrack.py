@@ -5,9 +5,8 @@ from av import VideoFrame
 from utils import Fps, combinate_rgbd, downscale, print_exceptions
 
 
-
 class DumbStaticRGBD(VideoStreamTrack):
-    def __init__(self, near, far, is_hue = True, show = True):
+    def __init__(self, near, far, is_hue=True, show=True):
         super().__init__()
         self.near = near
         self.far = far

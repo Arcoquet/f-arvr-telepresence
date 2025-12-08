@@ -11,7 +11,7 @@ import functools
 import socket
 
 
-def combinate_rgbd(color, depth_16b, near, far, is_hue = True, device='cuda'):
+def combinate_rgbd(color, depth_16b, near, far, is_hue=True, device='cuda'):
     assert color.shape[:2] == depth_16b.shape[:2], "Color and Depth must have same w x h"
     assert color.shape[2], "Color must have 3 channels"
     assert len(depth_16b.shape) == 2 or depth_16b.shape[2], "Depth must have 1 channel"
@@ -41,6 +41,7 @@ class Fps:
             self.time_s = time.time()
             return out
 
+
 class Timer:
     def __init__(self, name=None):
         self.name = name
@@ -62,9 +63,11 @@ class Timer:
             print(message)
         return False
 
+
 def downscale(img, scale=4):
     h, w = img.shape[:2]
-    return cv2.resize(img, (int(w/scale), int(h/scale)))
+    return cv2.resize(img, (int(w / scale), int(h / scale)))
+
 
 def print_exceptions(func):
     @functools.wraps(func)
@@ -74,7 +77,9 @@ def print_exceptions(func):
         except Exception:
             traceback.print_exc()
             raise
+
     return wrapper
+
 
 def get_local_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
