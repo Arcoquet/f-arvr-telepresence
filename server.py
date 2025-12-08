@@ -72,5 +72,5 @@ if __name__ == "__main__":
     if use_ssl:
         ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
         ssl_context.load_cert_chain(certfile='./tmp_ssl/cert.pem', keyfile='./tmp_ssl/key.pem')
-    web.run_app(app, host="0.0.0.0", port=8080, ssl_context=ssl_context)
-    # web.run_app(app, host=local_ip, port=8080, ssl_context=ssl_context)
+    # web.run_app(app, host="0.0.0.0", port=8080, ssl_context=ssl_context)
+    web.run_app(app, host=local_ip, port=8080, ssl_context=ssl_context)
