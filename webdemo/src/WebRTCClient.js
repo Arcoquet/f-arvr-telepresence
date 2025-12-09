@@ -27,7 +27,10 @@ export class WebRTCClient {
         const protocol = isHttps ? 'https' : 'http'
         const response = await fetch(`${protocol}://${host}:8080/offer`, {
             method: "POST",
-            body: JSON.stringify({sdp: this.pc.localDescription.sdp, type: this.pc.localDescription.type,}),
+            body: JSON.stringify({
+                sdp: this.pc.localDescription.sdp,
+                type: this.pc.localDescription.type,
+            }),
             headers: {"Content-Type": "application/json",},
         })
 
