@@ -1,8 +1,12 @@
 import cv2
 from aiortc import VideoStreamTrack
 from av import VideoFrame
+import torch
 
 from utils import Fps, combinate_rgbd, downscale, print_exceptions
+
+device = "cuda" if torch.cuda.is_available() else "cpu"
+correct, total = 0., 0.
 
 
 class DumbStaticRGBD(VideoStreamTrack):
@@ -25,7 +29,7 @@ class DumbStaticRGBD(VideoStreamTrack):
         depth16 = cv2.imread(self.depth_path, cv2.IMREAD_UNCHANGED)
 
         # with Timer(name='combinate_rgbd'):
-        frame_bgr = combinate_rgbd(color_bgr, depth16, self.near, self.far, self.is_hue, 'cuda')
+        frame_bgr = combinate_rgbd(color_bgr, depth16, self.near, self.far, self.is_hue, device)
         frame = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
         # frame = color_bgr #skip the depth
 
