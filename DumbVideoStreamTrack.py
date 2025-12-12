@@ -4,6 +4,7 @@ from av import VideoFrame
 import torch
 
 from utils import Fps, combinate_rgbd, downscale, print_exceptions
+from depthestimation import load_midas, get_MiDas_monodepth
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 correct, total = 0., 0.
@@ -54,7 +55,6 @@ class DumbStaticRGBD(VideoStreamTrack):
 class DumbWebcamStreamTrack(VideoStreamTrack):
     def __init__(self):
         super().__init__()
-        # Open the first available webcam
         self.cap = cv2.VideoCapture(0)
 
     async def recv(self):
@@ -72,3 +72,38 @@ class DumbWebcamStreamTrack(VideoStreamTrack):
     def stop(self):
         if self.cap.isOpened():
             self.cap.release()
+
+
+class DumbMonoDepth(VideoStreamTrack):
+    def __init__(self, show=True, model_mod=True):
+        super().__init__()
+        
+        self.cap = cv2.VideoCapture(0)
+        self.midas, self.transform, self.device = load_midas(model_mod)
+
+        self.show = show
+
+    async def recv(self):
+        pts, time_base = await self.next_timestamp()
+        
+        ret, frame = self.cap.read()
+        if not ret:
+            raise Exception("Could not read frame from webcam")
+
+        depth = get_MiDas_monodepth(frame, self.midas, self.transform, self.device)
+
+        if self.show:
+            cv2.imshow("MonoDepth", depth)
+            cv2.waitKey(1)
+
+        depth_rgb = cv2.cvtColor(depth, cv2.COLOR_GRAY2RGB)
+
+        video_frame = VideoFrame.from_ndarray(depth_rgb, format="rgb24")
+        video_frame.pts = pts
+        video_frame.time_base = time_base
+        return video_frame
+
+    def stop(self):
+        if self.cap.isOpened():
+            self.cap.release()
+        cv2.destroyAllWindows()
