@@ -7,7 +7,7 @@ import { WebRTCClient } from "./WebRTCClient.js";
 let elVideo = document.getElementById('video')
 
 let wegGlApp = new WebGlApp(document.querySelector('#threejs-container'))
-const rgbdObject3D = new RGBDObject3D(elVideo)
+const rgbdObject3D = new RGBDObject3D(elVideo, "rgbd") // A changer entre "rgbd" et "mono"
 rgbdObject3D.rotation.copy(angles2euler(0, 0, 90))
 wegGlApp.scene.add(rgbdObject3D)
 
@@ -36,6 +36,18 @@ elStartBtn.addEventListener("click", () => {
             console.error(error)
         })
 });
+
+const elToggleBtn = document.getElementById("toggleModeBtn")
+
+elToggleBtn.addEventListener("click", () => {
+    if (rgbdObject3D.mode === "mono") {
+        rgbdObject3D.setMode("rgbd")
+        elToggleBtn.innerText = "Switch to MonoDepth"
+    } else {
+        rgbdObject3D.setMode("mono")
+        elToggleBtn.innerText = "Switch to RGBD"
+    }
+})
 
 // Automatically start when the page loads
 // elStartBtn.click()

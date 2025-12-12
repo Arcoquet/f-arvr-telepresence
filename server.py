@@ -23,10 +23,10 @@ async def offer(request):
             await pc.close()
             pcs.discard(pc)
 
-    # video_track = DumbStaticRGBD(near, far)  # send static color and depth pngs
+    video_track = DumbStaticRGBD(near, far)  # send static color and depth pngs
     # video_track = DumbWebcamStreamTrack() # send color webcam
     # video_track = Kinect2StreamTrack(near, far)
-    video_track = DumbMonoDepth()
+    # video_track = DumbMonoDepth(source_path=None)
 
     pc.addTrack(video_track)
     await pc.setRemoteDescription(offer)

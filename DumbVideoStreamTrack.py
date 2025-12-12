@@ -106,4 +106,3 @@ class DumbMonoDepth(VideoStreamTrack):
     def stop(self):
         if self.cap.isOpened():
             self.cap.release()
-        cv2.destroyAllWindows()
