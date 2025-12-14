@@ -25,11 +25,11 @@ gui.add(rgbdObject3D.rotation, 'x', -maxRot, maxRot, 0.01).name('Rotate Z')
 
 const elStartBtn = document.getElementById("startBtn")
 let client = new WebRTCClient(elVideo)
-const host = document.getElementById('host').value
+const hostInput = document.getElementById('host')
 elStartBtn.addEventListener("click", () => {
     elStartBtn.disabled = true;
     elStartBtn.innerText = "Connecting..."
-    client.startStream(host)
+    client.startStream(hostInput.value)
         .then(_=> elStartBtn.innerText = "Connected")
         .catch(error => {
             elStartBtn.innerText = "Error (see console)"
