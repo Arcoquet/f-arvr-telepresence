@@ -5,7 +5,7 @@ from aiohttp import web
 from aiortc import RTCPeerConnection, RTCSessionDescription
 import ssl
 
-from DumbVideoStreamTrack import DumbStaticRGBD, DumbWebcamStreamTrack, DumbMonoDepth
+from DumbVideoStreamTrack import DumbStaticRGBD, DumbWebcamStreamTrack, DumbMonoDepth, DumbMonoColor3D
 # from Kinect2StreamTrack import Kinect2StreamTrack # Uncomment on Linux
 from utils import get_local_ip
 
@@ -26,7 +26,8 @@ async def offer(request):
     # video_track = DumbStaticRGBD(near, far)  # send static color and depth pngs
     # video_track = DumbWebcamStreamTrack() # send color webcam
     # video_track = Kinect2StreamTrack(near, far)
-    video_track = DumbMonoDepth()
+    # video_track = DumbMonoDepth(show=False) #greyscale_mono_depth
+    video_track = DumbMonoColor3D(show=False)
 
     pc.addTrack(video_track)
     await pc.setRemoteDescription(offer)
