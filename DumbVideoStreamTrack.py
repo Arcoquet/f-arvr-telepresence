@@ -108,8 +108,16 @@ class DumbMonoDepth(VideoStreamTrack):
         if self.cap.isOpened():
             self.cap.release()
 
+import cv2
+from aiortc import VideoStreamTrack
+from av import VideoFrame
+import torch
+import numpy as np
+from utils import print_exceptions
+from depthestimation import load_midas, get_MiDas_monodepth
+
 class DumbMonoColor3D(VideoStreamTrack):
-    def __init__(self, show=True, model_mod=True, near=300, far=1000, fx=600, fy=600):
+    def __init__(self, show=True, model_mod=True, near=300, far=800, fx=600, fy=600):
         super().__init__()
         self.cap = cv2.VideoCapture(0)
         self.midas, self.transform, self.device = load_midas(model_mod)
@@ -133,23 +141,29 @@ class DumbMonoColor3D(VideoStreamTrack):
         frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
         h, w, _ = frame_rgb.shape
 
-        # Calculate the depth with MiDaS
         depth = get_MiDas_monodepth(frame_rgb, self.midas, self.transform, self.device)
+
+        # Convert depth to mm
         depth_mm = depth.astype(np.float32) * (self.far - self.near) + self.near
-        depth_display = ((depth_mm - depth_mm.min()) / (depth_mm.max() - depth_mm.min() + 1e-6) * 255).astype(np.uint8)
+        depth_norm = (depth_mm - depth_mm.min()) / (depth_mm.max() - depth_mm.min() + 1e-6)
 
-        depth_color = cv2.cvtColor(depth_display, cv2.COLOR_GRAY2RGB)
+        # Create a color image for the depthmap
+        depth_color = cv2.applyColorMap((depth_norm*255).astype(np.uint8), cv2.COLORMAP_BONE)
+        depth_color = cv2.cvtColor(depth_color, cv2.COLOR_BGR2RGB)
 
-        # Combine camera and depth
-        frame_combined = np.concatenate([frame_rgb, depth_color], axis=1)
+        # Overlay depthmap on RGB webcam image with transparency
+        alpha = 0.6
+        frame_fused = ((1-alpha) * frame_rgb + alpha * depth_color).astype(np.uint8)
+
         if self.show:
-            cv2.imshow("RGBD Combined", frame_combined)
+            # Debug
+            cv2.imshow("RGBD Fused", frame_fused)
             cv2.waitKey(1)
 
         self.latest_points, self.latest_colors = self.get_pointcloud(frame_rgb, depth_mm)
 
         # Create a VideoFrame for WebRTC
-        video_frame = VideoFrame.from_ndarray(frame_combined, format="rgb24")
+        video_frame = VideoFrame.from_ndarray(frame_fused, format="rgb24")
         video_frame.pts = pts
         video_frame.time_base = time_base
         return video_frame
@@ -158,13 +172,21 @@ class DumbMonoColor3D(VideoStreamTrack):
         h, w, _ = rgb.shape
         i, j = np.meshgrid(np.arange(w), np.arange(h), indexing='xy')
 
-        X = (i - w / 2) * depth_mm / self.fx
-        Y = (j - h / 2) * depth_mm / self.fy
-        Z = depth_mm
+        cx = w / 2
+        cy = h / 2
 
-        colors = rgb.astype(np.uint8).reshape(-1, 3)
+        # Scale factor for visualization
+        scale = 1000.0
+
+        X = ((i - cx) * depth_mm / self.fx) / scale
+        Y = ((j - cy) * depth_mm / self.fy) / scale
+        Z = depth_mm / scale
+
         points = np.stack((X, Y, Z), axis=-1).reshape(-1, 3)
+        colors = (rgb.astype(np.float32) / 255.0).reshape(-1, 3)
+
         return points, colors
+
 
     def stop(self):
         if self.cap.isOpened():
