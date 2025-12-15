@@ -27,7 +27,7 @@ async def offer(request):
     # video_track = DumbWebcamStreamTrack() # send color webcam
     # video_track = Kinect2StreamTrack(near, far)
     # video_track = DumbMonoDepth(show=False) #greyscale_mono_depth
-    video_track = DumbMonoColor3D(show=False)
+    video_track = DumbMonoColor3D(near, far, show=False)
 
     pc.addTrack(video_track)
     await pc.setRemoteDescription(offer)
