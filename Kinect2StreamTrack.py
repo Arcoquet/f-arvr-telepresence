@@ -11,7 +11,7 @@ from utils import Fps, combinate_rgbd, downscale, print_exceptions
 from pylibfreenect2 import Freenect2, SyncMultiFrameListener
 from pylibfreenect2 import FrameType, Registration, Frame
 from pylibfreenect2 import createConsoleLogger, setGlobalLogger, LoggerLevel
-from pylibfreenect2 import OpenGLPacketPipeline, OpenCLPacketPipeline, CpuPacketPipeline
+from pylibfreenect2 import OpenGLPacketPipeline, CpuPacketPipeline #OpenCLPacketPipeline
 
 
 class Kinect2StreamTrack(VideoStreamTrack):
@@ -28,9 +28,9 @@ class Kinect2StreamTrack(VideoStreamTrack):
         try:
             self.pipeline = OpenGLPacketPipeline()
         except:
-            try:
-                self.pipeline = OpenCLPacketPipeline()
-            except:
+            # try:
+            #     self.pipeline = OpenCLPacketPipeline()
+            # except:
                 self.pipeline = CpuPacketPipeline()
 
         # Setup Logger (optional, keeps console clean)

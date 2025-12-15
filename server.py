@@ -2,11 +2,10 @@ import asyncio
 
 import aiohttp_cors
 from aiohttp import web
-from aiortc import RTCPeerConnection, RTCSessionDescription
+from aiortc import RTCPeerConnection, RTCSessionDescription, VideoStreamTrack
 import ssl
 
 from DumbVideoStreamTrack import DumbStaticRGBD, DumbWebcamStreamTrack, DumbMonoDepth, DumbMonoColor3D
-# from Kinect2StreamTrack import Kinect2StreamTrack # Uncomment on Linux
 from utils import get_local_ip
 
 
@@ -22,12 +21,6 @@ async def offer(request):
         if pc.connectionState == "failed" or pc.connectionState == "closed":
             await pc.close()
             pcs.discard(pc)
-
-    # video_track = DumbStaticRGBD(near, far)  # send static color and depth pngs
-    # video_track = DumbWebcamStreamTrack() # send color webcam
-    # video_track = Kinect2StreamTrack(near, far)
-    # video_track = DumbMonoDepth(show=False) #greyscale_mono_depth
-    video_track = DumbMonoColor3D(near, far, show=False)
 
     pc.addTrack(video_track)
     await pc.setRemoteDescription(offer)
@@ -52,6 +45,15 @@ if __name__ == "__main__":
     app = web.Application()
 
     near, far = 500, 1500  # in mm # will keep only range 0.5m-1.5m
+    
+    # prepare the video track #TODO add cli args
+    # video_track = DumbStaticRGBD(near, far)  # send static color and depth pngs
+    # video_track = DumbWebcamStreamTrack() # send color webcam
+    from Kinect2StreamTrack import Kinect2StreamTrack; video_track = Kinect2StreamTrack(near, far) # send Kinect v2 color+depth
+    # video_track = DumbMonoDepth(show=False) #greyscale_mono_depth
+    # video_track = DumbMonoColor3D(near, far, show=False)
+    
+    
     use_ssl = False  # must be a valid ssl certificate :'( otherwise the fetch js call fail
 
     local_ip = get_local_ip()

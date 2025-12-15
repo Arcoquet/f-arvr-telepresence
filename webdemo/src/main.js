@@ -37,17 +37,5 @@ elStartBtn.addEventListener("click", () => {
         })
 });
 
-const elToggleBtn = document.getElementById("toggleModeBtn")
-
-elToggleBtn.addEventListener("click", () => {
-    if (rgbdObject3D.mode === "mono") {
-        rgbdObject3D.setMode("rgbd")
-        elToggleBtn.innerText = "Switch to MonoDepth"
-    } else {
-        rgbdObject3D.setMode("mono")
-        elToggleBtn.innerText = "Switch to RGBD"
-    }
-})
-
 // Automatically start when the page loads
 // elStartBtn.click()
