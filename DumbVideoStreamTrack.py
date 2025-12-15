@@ -128,9 +128,27 @@ class DumbMonoColor3D(VideoStreamTrack):
             raise Exception("Could not read frame from webcam")
 
         depth = get_MiDas_monodepth(color_bgr, self.midas, self.transform, self.device)
+
         depth_norm = (depth - depth.min()) / (depth.max() - depth.min() + 1e-6)
+        h, w = color_bgr.shape[:2]
+        depth_norm = cv2.resize(
+            depth_norm,
+            (w, h),
+            interpolation=cv2.INTER_LINEAR
+        )
+
+        # Invert the MiDas disparity map for a true depthmap
+        depth_norm = 1.0 - depth_norm
+
+        # Foreground mask based on relative depth (MiDaS is not metric)
+        bg_threshold = 0.7
+        mask_fg = depth_norm < bg_threshold
+        mask_fg_3c = mask_fg[:, :, None] # Make the mask 3D
 
         depth16 = (depth_norm * (self.far - self.near) + self.near).astype(np.uint16)
+
+        color_bgr = color_bgr * mask_fg_3c
+        color_bgr = color_bgr.astype(np.uint8)
 
         frame_bgr = combinate_rgbd(
             color_bgr,
