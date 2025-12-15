@@ -1,5 +1,11 @@
 # arvr-server
 
+## Usefull links:
+
+- [Git: arvr-server](https://gitlab.emi.u-bordeaux.fr/rmellet/arvr-server)
+- [Git arvr-client-unity](https://gitlab.emi.u-bordeaux.fr/rmellet/arvr-client-unity)
+- [Demo video]()
+
 ## Ubuntu
 
 ```shell
