@@ -1,14 +1,15 @@
 # arvr-server
 
-## Usefull links:
+## Useful links:
 
 - [Git: arvr-server](https://gitlab.emi.u-bordeaux.fr/rmellet/arvr-server)
-- [Git arvr-client-unity](https://gitlab.emi.u-bordeaux.fr/rmellet/arvr-client-unity)
-- [Demo video]()
+- [Git: arvr-client-unity](https://gitlab.emi.u-bordeaux.fr/rmellet/arvr-client-unity)
+- [Demo video](https://gitlab.emi.u-bordeaux.fr/rmellet/arvr-client-unity/-/blob/main/Vidéo_démo.mp4)
 
 ## Ubuntu python server (tested on 22.04)
 
 ### Install libfreenect2
+
 ```shell
 sudo apt install build-essential cmake pkg-config libusb-1.0-0-dev libturbojpeg0-dev libglfw3-dev
 #install opencl depending of you graphics vendor eg: sudo apt install nvidia-opencl-dev
@@ -21,7 +22,9 @@ make
 ./bin/Protonect # must display a RGB-D feed
 sudo make install
 ```
+
 ### Python libs
+
 ```shell
 #pip install -r requirements.txt
 #mamba env create -n arvr --file environment.yml
@@ -48,17 +51,19 @@ So to check on MQ3 either:
 - run vite in http and python in http and check in non-immersive mode
 - run vite in https with the `<source src="rgbdhue_combined.webm" />` static video and no python server
 
-
 ## Kinect troubleshooting
 
 ### libfreenect2 so missing
+
 ```shell
 sudo ldconfig
 ldconfig -p | grep libfreenect2
 ```
 
 ### install libfreenect2 from source
+
 I had some numpy error though not related with numpy, so I installed from source
+
 ```shell
 git clone https://github.com/r9y9/pylibfreenect2.git
 cd pylibfreenect2
